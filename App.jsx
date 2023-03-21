@@ -1,23 +1,29 @@
 import React from "react";
-import Die from "./Die";
-import { nanoid } from "nanoid";
 import Confetti from "react-confetti";
-/**
- * Challenge: Allow the user to play a new game when the
- * button is clicked and they've already won
- */
+import { nanoid } from "nanoid";
+import Die from "./Die";
+import Stopwatch from "./Stopwatch";
 
 export default function App() {
   const [dice, setDice] = React.useState(allNewDice());
   const [tenzies, setTenzies] = React.useState(false);
+  const [shake, setShake] = React.useState(false);
+  const [rolls, setRolls] = React.useState(0);
+  const [startGame, setStartGame] = React.useState(false);
+  const [bestResult, setBestResult] = React.useState({
+    time: 999,
+    throwNumber: 0,
+  });
 
   function rollDice() {
+    const diceRollSound = new Audio("./sounds/dice-roll-on-wood.mp3");
+    diceRollSound.play();
+
     setDice((oldDiceArr) => {
+      let isHeld = [];
       const allNewDiceArr = allNewDice();
       const updatedDiceArr = [];
-      const isHeld = oldDiceArr.map((die) => {
-        return die.isHeld ? true : false;
-      });
+      isHeld = oldDiceArr.map((die) => !!die.isHeld);
 
       for (let i = 0; i < 10; i++) {
         if (isHeld[i]) {
@@ -25,73 +31,160 @@ export default function App() {
         } else {
           updatedDiceArr[i] = allNewDiceArr[i];
         }
+
+        setShake(true);
       }
+
       return updatedDiceArr;
     });
+    setRolls((count) => count + 1);
   }
 
   function allNewDice() {
-    const dice = [];
+    const newDice = [];
 
     for (let i = 0; i < 10; i++) {
-      dice[i] = {
+      newDice[i] = {
         value: Math.ceil(Math.random() * 6),
         isHeld: false,
         id: nanoid(),
       };
     }
-
-    return dice;
+    return newDice;
   }
 
   function holdDice(id) {
+    const btn = new Audio("./sounds/button.mp3");
+    btn.play();
+
     setDice((old) => {
       const updated = old.map((item) => {
-        if (item.id === id) {
-          item.isHeld = !item.isHeld;
+        const newItem = { ...item };
+        if (newItem.id === id) {
+          newItem.isHeld = !newItem.isHeld;
         }
-        return item;
+        return newItem;
       });
       return updated;
     });
   }
 
   function newGame() {
+    const btn = new Audio("./sounds/button.mp3");
+    btn.play();
+
     setDice(allNewDice());
     setTenzies(false);
+    setRolls(0);
+    setStartGame(true);
   }
+
+  function secondsToTime(time) {
+    let minutes = Math.trunc(time / 60);
+    let seconds = time % 60;
+
+    if (minutes < 10) {
+      minutes = `0${minutes}`;
+    }
+    if (seconds < 10) {
+      seconds = `0${seconds}`;
+    }
+    return `${minutes}:${seconds}`;
+  }
+
+  // CHECK WINNING CONDITIONS
   React.useEffect(() => {
     const testArrHeld = dice.filter(
       (die) => die.isHeld && die.value === dice[0].value
     );
     if (testArrHeld.length === dice.length) {
       setTenzies(true);
-      console.log("You won!");
     }
   }, [dice]);
 
+  // SHAKING
+  React.useEffect(() => {
+    const elements = document.querySelectorAll(".dice-container > *");
+    const filteredElements = Array.prototype.filter.call(
+      elements,
+      (element, index) => !dice[index].isHeld
+    );
+
+    Array.from(filteredElements).forEach((element) => {
+      element.classList.add("shake");
+    });
+
+    setShake(false);
+  }, [shake]);
+
   return (
     <main>
+      {/* TITLE */}
       {tenzies && <Confetti />}
-      <h1 className="title">Tenzies</h1>
-      <p className="instruction">
-        Rzucaj kośćmi aż wszystkie będą takie same. Kliknij kostkę aby zachować
-        jej wartość i nie wliczać jej do kolejnego rzutu
-      </p>
-      <div className="container">
-        {dice.map((item) => (
-          <Die
-            value={item.value}
-            key={item.id}
-            holdDice={holdDice}
-            id={item.id}
-            isHeld={item.isHeld}
-          />
-        ))}
-      </div>
-      <button className="btn" onClick={tenzies ? newGame :rollDice}>
-        {tenzies ? "Nowa gra" : "Rzuć kośćmi"}
-      </button>
+      <h1 className="title">{tenzies ? "Gratulacje" : "Tenzies"}</h1>
+      {/* BEST REUSLT */}
+      {tenzies && (
+        <div className="best-result-container">
+          <p>
+            Najlepszy czas:
+            {secondsToTime(bestResult.time)}
+          </p>
+          <p>
+            Liczba rzutów:
+            {bestResult.throwNumber}
+          </p>
+        </div>
+      )}
+
+      {startGame ? (
+        <>
+          {/* GAME SCREEN */}
+          <div className="dice-container">
+            {dice.map((item) => (
+              <Die
+                value={item.value}
+                key={item.id}
+                holdDice={() => holdDice(item.id)}
+                id={item.id}
+                isHeld={item.isHeld}
+              />
+            ))}
+          </div>
+          <div className={`info-container ${tenzies ? "corect-margin" : ""}`}>
+            <div className="stopwatch">
+              Czas gry:&nbsp;
+              <Stopwatch
+                win={tenzies}
+                throwNumber={rolls}
+                bestResult={[bestResult, setBestResult]}
+              />
+            </div>
+            <div className="throw-counter">
+              Liczba rzutów:
+              {rolls}
+            </div>
+          </div>
+          <button
+            type="button"
+            className="btn"
+            onClick={tenzies ? newGame : rollDice}
+          >
+            {tenzies ? "Nowa gra" : "Rzuć kośćmi"}
+          </button>
+        </>
+      ) : (
+        <>
+          {/* START SCREEN */}
+          <img alt="dice" className="hero-image" src="./heroImage.jpg" />
+          <p className="instruction">
+            Rzucaj kośćmi aż na wszystkich będzie taka sama liczba oczek.
+            Kliknij na kostkę aby wyłączyć ją z rzutu.
+          </p>
+          <button type="button" className="btn" onClick={newGame}>
+            Zacznij grę
+          </button>
+        </>
+      )}
     </main>
   );
 }
