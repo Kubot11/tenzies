@@ -3,6 +3,9 @@ import Confetti from "react-confetti";
 import { nanoid } from "nanoid";
 import Die from "./Die";
 import Stopwatch from "./Stopwatch";
+import heroImg from "./heroImage.jpg";
+import diceRollSound from "./sounds/dice-roll-on-wood.mp3";
+import buttonSound from "./sounds/button.mp3";
 
 export default function App() {
   const [dice, setDice] = React.useState(allNewDice());
@@ -16,8 +19,8 @@ export default function App() {
   });
 
   function rollDice() {
-    const diceRollSound = new Audio("./sounds/dice-roll-on-wood.mp3");
-    diceRollSound.play();
+    const diceRoll = new Audio(diceRollSound);
+    diceRoll.play();
 
     setDice((oldDiceArr) => {
       let isHeld = [];
@@ -54,7 +57,7 @@ export default function App() {
   }
 
   function holdDice(id) {
-    const btn = new Audio("./sounds/button.mp3");
+    const btn = new Audio(buttonSound);
     btn.play();
 
     setDice((old) => {
@@ -70,7 +73,7 @@ export default function App() {
   }
 
   function newGame() {
-    const btn = new Audio("./sounds/button.mp3");
+    const btn = new Audio(buttonSound);
     btn.play();
 
     setDice(allNewDice());
@@ -175,7 +178,7 @@ export default function App() {
       ) : (
         <>
           {/* START SCREEN */}
-          <img alt="dice" className="hero-image" src="./heroImage.jpg" />
+          <img alt="dice" className="hero-image" src={heroImg} />
           <p className="instruction">
             Rzucaj kośćmi aż na wszystkich będzie taka sama liczba oczek.
             Kliknij na kostkę aby wyłączyć ją z rzutu.
