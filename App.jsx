@@ -159,7 +159,7 @@ export default function App() {
               <Stopwatch
                 win={tenzies}
                 throwNumber={rolls}
-                bestResult={[bestResult, setBestResult]}
+                setBestResult={setBestResult}
               />
             </div>
             <div className="throw-counter">

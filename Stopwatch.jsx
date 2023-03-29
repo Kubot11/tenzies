@@ -3,8 +3,7 @@ import { useStopwatch } from "react-timer-hook";
 import PropTypes from "prop-types";
 import crowdCheer from "./sounds/crowd_cheer.wav";
 
-export default function Stopwatch({ win, throwNumber, bestResult }) {
-  const [bestResultState, setBestResultState] = bestResult;
+export default function Stopwatch({ win, throwNumber, setBestResult }) {
   const { seconds, minutes, pause, reset } = useStopwatch({
     autoStart: true,
   });
@@ -13,15 +12,10 @@ export default function Stopwatch({ win, throwNumber, bestResult }) {
     let twoDigitNumber;
     if (number < 10) {
       twoDigitNumber = `0${number}`;
+    } else {
+      twoDigitNumber = number;
     }
     return twoDigitNumber;
-  }
-
-  function updateBestResult(numberOfThows, oldResult, setter) {
-    const time = seconds + minutes * 60;
-    if (time < oldResult.time) {
-      setter({ time, numberOfThows });
-    }
   }
 
   React.useEffect(() => {
@@ -31,7 +25,13 @@ export default function Stopwatch({ win, throwNumber, bestResult }) {
       const winSound = new Audio(crowdCheer);
       winSound.play();
 
-      updateBestResult(throwNumber, bestResultState, setBestResultState);
+      setBestResult((results) => {
+        const time = seconds + minutes * 60;
+        if (results.time > time) {
+          return { time, throwNumber };
+        }
+        return results;
+      });
     } else {
       reset();
     }
@@ -48,16 +48,5 @@ export default function Stopwatch({ win, throwNumber, bestResult }) {
 Stopwatch.propTypes = {
   win: PropTypes.bool.isRequired,
   throwNumber: PropTypes.number.isRequired,
-  bestResult: PropTypes.arrayOf(
-    PropTypes.oneOfType([
-      PropTypes.shape({
-        bestResultState: PropTypes.shape({
-          time: PropTypes.number.isRequired,
-          throwNumber: PropTypes.number.isRequired,
-        }),
-        setBestResultState: PropTypes.func.isRequired,
-      }),
-      PropTypes.func.isRequired,
-    ])
-  ).isRequired,
+  setBestResult: PropTypes.func.isRequired,
 };
