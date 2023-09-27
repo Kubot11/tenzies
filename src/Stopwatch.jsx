@@ -1,7 +1,7 @@
 import React from "react";
 import { useStopwatch } from "react-timer-hook";
 import PropTypes from "prop-types";
-import crowdCheer from "./sounds/crowd_cheer.wav";
+import crowdCheer from "../sounds/crowd_cheer.wav";
 
 export default function Stopwatch({ win, throwNumber, setBestResult }) {
   const { seconds, minutes, pause, reset } = useStopwatch({

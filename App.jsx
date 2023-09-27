@@ -1,8 +1,8 @@
 import React from "react";
 import Confetti from "react-confetti";
 import { nanoid } from "nanoid";
-import Die from "./Die";
-import Stopwatch from "./Stopwatch";
+import Die from "./src/Die";
+import Stopwatch from "./src/Stopwatch";
 import heroImg from "./heroImage.jpg";
 import diceRollSound from "./sounds/dice-roll-on-wood.mp3";
 import buttonSound from "./sounds/button.mp3";

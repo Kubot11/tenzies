@@ -1,22 +1,22 @@
 # Tenzies game 
-This is simple game created in React [from this course]( https://scrimba.com/playlist/pYkgpAP). 
+This is a simple game created in React [from this course]( https://scrimba.com/playlist/pYkgpAP). 
 
-I use eslint (Airbnb) and vite to create this app.
+I used Eslint (Airbnb) and Vite to create this app.
 
-After building the base version from this course I expand the application about:
+After building the base version from this course I expanded the application to:
 
-- real dice faces (instead number) creating via flexbox 
+- real dice faces (instead of numbers) created via Flexbox 
 
 - measuring game time and number of throws 
 
 - displaying the best result 
 
-- audio effects while you clicking the dice, buttons and winnig the game
+- audio effects while you click the dice, and buttons and win the game
 
 - responsiveness (mobile friendly) 
 
 - shaking animation
 
--	start screen
+- start screen
 
--  polish language 
+-  Polish language 
